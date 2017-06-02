@@ -48,8 +48,17 @@ def detail(request, question_id):
 
 
 def results(request, question_id):
-    response = "You're looking at the results of question %s."
-    return HttpResponse(response % question_id)
+    # detail.html파일을 약간 수정해서 results.html을 만들고
+    # 질문에 대한 모든 선택사항의 선택수(votes)를 출력
+    question = get_object_or_404(Question, pk=question_id)
+    context = {
+        'question': question,
+    }
+    # detail.html내부
+    #   question을 출력
+    #   해당 question의 모든 choice들 (question.choice_set.all) 출력
+    #   loop돌며 각 choice의 제목과 votes를 출력
+    return render(request, 'polls/results.html', context)
 
 
 def vote(request, question_id):
