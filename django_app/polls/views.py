@@ -1,7 +1,8 @@
-from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 from django.http import HttpResponse, Http404
 
-from polls.models import Question
+from polls.models import Question, Choice
 
 
 def index(request):
@@ -52,4 +53,27 @@ def results(request, question_id):
 
 
 def vote(request, question_id):
-    return HttpResponse("You're voting on question %s." % question_id)
+    # request의 method가 POST방식일 때,
+    if request.method == 'POST':
+        # 전달받은 데이터중 'choice'키에 해당하는 값을
+        # HttpResponse에 적절히 돌려준다
+        data = request.POST
+        try:
+            choice_id = data['choice']
+            choice = Choice.objects.get(id=choice_id)
+            choice.votes += 1
+            choice.save()
+            return redirect('polls:results', question_id)
+        except (KeyError, Choice.DoesNotExist):
+            # message프레임워크를 사용
+            # 지금 모르셔도 됩니다
+            # request에 메시지를 저장해놓고 해당 request에 대한
+            # response를 돌려줄 때 메시지를 담아 보낸다
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "You didn't select a choice",
+            )
+            return redirect('polls:detail', question_id)
+    else:
+        return HttpResponse("You're voting on question %s." % question_id)
