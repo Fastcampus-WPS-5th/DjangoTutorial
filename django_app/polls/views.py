@@ -6,8 +6,15 @@ from polls.models import Question
 
 def index(request):
     latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    output = ', '.join([q.question_text for q in latest_question_list])
-    return HttpResponse(output)
+    # latest_question_list라는 키로 위 쿼리셋을 전달,
+    # polls/index.html을 이용해 render한 결과를 리턴
+    context = {
+        'latest_question_list': latest_question_list,
+    }
+    # Template Does Not Exist
+    # settings.py에서 TEMPLATE_DIR변수 할당 (BASE_DIR와 os.path.join를 사용)
+    # TEMPLATE항목의 DIRS 리스트에 위 변수를 추가
+    return render(request, 'polls/index.html', context)
 
 
 def detail(request, question_id):
